@@ -1,7 +1,9 @@
-<<<<<<< HEAD
-# Conversational AI Copilot
+# Conversational AI Sales Copilot
 
-This project is a command-line chatbot that helps sales users understand and summarize their past sales calls. The bot ingests call transcripts, embeds them using a sentence-transformer model, stores them in a FAISS vector store, and uses a Retrieval-Augmented Generation (RAG) approach to answer user questions.
+A command-line AI copilot that helps sales teams understand and summarize past sales calls.  
+The system ingests call transcripts, embeds them using a **state-of-the-art embedding model**, stores them in a **FAISS vector store**, and uses a **Retrieval-Augmented Generation (RAG)** approach powered by **Groq’s GPT-OSS-120B** to answer user questions with supporting evidence.
+
+---
 
 ## Project Structure
 
@@ -13,85 +15,87 @@ This project is a command-line chatbot that helps sales users understand and sum
 │   ├── 3_objection_call.txt
 │   └── 4_negotiation_call.txt
 ├── src
-│   ├── chatbot.py
-│   ├── ingestion.py
-│   └── cli.py
+│   ├── chatbot.py       # Core SalesCopilot class (RAG logic with Groq LLM + FAISS)
+│   ├── ingestion.py     # Reads transcripts, chunks, embeds with BGE, stores in FAISS
+│   └── cli.py           # Command-line interface for interacting with the copilot
 ├── storage
-│   └── faiss_index
-├── .env.example
+│   └── faiss_index      # Persisted FAISS vector store
+├── .env.example         # Example environment variables
 ├── README.md
-└── requirements.txt
+└── requirements.txt     # Python dependencies
 ```
 
+---
 
+## Features
 
-- **data/**: Contains the raw call transcript files.
-- **src/**: Contains the Python source code for the project.
-  - `ingestion.py`: Handles reading, chunking, embedding, and storing the transcripts.
-  - `chatbot.py`: Contains the core logic for the RAG-based chatbot.
-  - `cli.py`: Provides a command-line interface for interacting with the chatbot.
-- **storage/**: Stores the FAISS vector index.
-- **.env.example**: Example environment file. You'll need to create a `.env` file with your Hugging Face API token and Groq token.
-- **README.md**: This file.
-- **requirements.txt**: A list of Python dependencies for the project.
+- 📂 **Transcript ingestion**: Load `.txt` sales call transcripts and embed them with `BAAI/bge-large-en-v1.5`.  
+- 🔎 **Retrieval-Augmented QA**: Answer questions grounded in transcript context.  
+- 📝 **Summarization**: Automatically summarize the most recent call.  
+- 📋 **Call management**: List all ingested call IDs.  
+- ⚡ **Powered by Groq**: Uses `openai/gpt-oss-120b` through `langchain_groq` for efficient, low-latency responses.  
+- ✅ **Strict grounding**: The chatbot will say *“I don’t know”* if the answer isn’t in the transcripts.  
+
+---
 
 ## Setup and Installation
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <repository_url>
-    cd <repository_directory>
-    ```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/SyedAkramaIrshad/sales-copilot.git
+   cd sales-copilot
+   ```
 
-2.  **Create and activate a virtual environment (recommended):**
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
-    ```
+2. **Create and activate a virtual environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate    # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Install the dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-4.  **Set up your environment variables:**
-    - Rename `.env.example` to `.env`.
-    - Add your Hugging Face API token to the `.env` file:
-      ```
-      HUGGINGFACEHUB_API_TOKEN="your_hugging_face_api_token"
-      ```
+4. **Set up environment variables**
+   - Rename `.env.example` → `.env`
+   - Add your Groq API key:
+     ```env
+     GROQ_API_KEY="your_groq_api_key"
+     ```
 
-5.  **Ingest the data:**
-    Before running the chatbot for the first time, you need to ingest the call transcripts.
-    ```bash
-    python src/ingestion.py
-    ```
-    This will create a FAISS index in the `storage/` directory.
+5. **Ingest transcripts**
+   ```bash
+   python src/ingestion.py
+   ```
+   This will create a FAISS index in the `storage/` directory.
 
-## How to Run the Chatbot
+---
 
-Once the setup is complete and the data has been ingested, you can run the CLI chatbot:
+## How to Run the Copilot
+
+Once data ingestion is complete, start the chatbot:
 
 ```bash
-python src/cli.py
+python -m src.cli
 ```
 
-You will be prompted to enter your questions. Here are some example commands you can use:
+### Available Commands
+- `list my call ids` → Shows all available transcript IDs.  
+- `summarise the last call` → Summarizes the most recent transcript.  
+- `exit` → Quits the copilot.  
 
--   `list my call ids`
--   `summarise the last call`
--   `What were the main objections raised in the calls?`
--   `Give me all negative comments when pricing was mentioned in the calls`
--   `ingest a new call transcript from <path>`
+### Example Queries
+- *“What objections were raised in the pricing calls?”*  
+- *“Summarize the demo call.”*  
+- *“Give me all negative comments about the product.”*  
 
-To exit the chatbot, type `exit`.
+---
 
-## Assumptions
+## Assumptions & Notes
 
--   The call transcripts are in a consistent format, with each line starting with a timestamp and speaker information (e.g., `[00:00] AE (Jordan):`).
--   The user has a Hugging Face account and an API token with the necessary permissions.
--   The `sentence-transformers/all-MiniLM-L6-v2` model is used for embeddings, and `mistralai/Mistral-7B-Instruct-v0.2` is used for generation. These can be changed in the `chatbot.py` file.
--   The FAISS index is stored locally. For a production environment, a more robust and scalable vector database would be recommended.
-=======
-# sales-copilot
->>>>>>> 4e2c774024192efca8e7dc4da28321756a6b7278
+- Transcripts are plain `.txt` files with consistent formatting (`[timestamp] Speaker: message`).  
+- Embeddings use **BAAI/bge-large-en-v1.5**, optimized for semantic retrieval.  
+- Vector store is **FAISS**, persisted locally (`storage/faiss_index`).  
+- LLM is **Groq GPT-OSS-120B** via `langchain_groq`.  
+- For production, consider scaling to a managed vector database (e.g., Pinecone, Weaviate, Milvus).  
